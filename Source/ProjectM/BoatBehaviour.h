@@ -27,11 +27,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) TArray<float> sailSpeedByStage;
+	UPROPERTY(BlueprintReadWrite) UStaticMeshComponent* boatMesh;
+
+	UPROPERTY(BlueprintReadWrite) TArray<float> sailSpeedByStage;
 
 	int currentSailStage;
 
 	void SailsUp();
 	void SailsDown();
+	void Sail();
 	void UpdateBoatSpeed(int& sailStage);
+	void TurnSails(float inValue);
 };

@@ -2,7 +2,9 @@
 
 
 #include "BoatBehaviour.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+#include "Components/StaticMeshComponent.h"  
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABoatBehaviour::ABoatBehaviour()
@@ -10,6 +12,8 @@ ABoatBehaviour::ABoatBehaviour()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	boatMesh = CreateDefaultSubobject<UStaticMeshComponent>("BoatMesh");
+	boatMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +38,9 @@ void ABoatBehaviour::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("BoatSailsUp", IE_Pressed, this, &ABoatBehaviour::SailsUp);
 	PlayerInputComponent->BindAction("BoatSailsDown", IE_Pressed, this, &ABoatBehaviour::SailsDown);
 
+	PlayerInputComponent->BindAxis("Move Right / Left", this, &ABoatBehaviour::TurnSails);
+
+
 }
 
 void ABoatBehaviour::SailsUp()
@@ -42,7 +49,6 @@ void ABoatBehaviour::SailsUp()
 		return;
 
 	--currentSailStage;
-	UpdateBoatSpeed(currentSailStage);
 }
 
 void ABoatBehaviour::SailsDown()
@@ -51,13 +57,28 @@ void ABoatBehaviour::SailsDown()
 		return;
 
 	++currentSailStage;
-	UpdateBoatSpeed(currentSailStage);
 }
 
-void ABoatBehaviour::UpdateBoatSpeed(int& refSailStage)
+void ABoatBehaviour::Sail()
 {
-	UCharacterMovementComponent* BoatCharacterMovement = GetCharacterMovement();
+	if (currentSailStage <= 0)
+		return;
 
-	BoatCharacterMovement->MaxWalkSpeed = sailSpeedByStage[refSailStage];
+
+	this->GetCapsuleComponent()->AddForceAtLocation(FVector(sailSpeedByStage[currentSailStage], sailSpeedByStage[currentSailStage],0),
+												this->GetCapsuleComponent()->GetCenterOfMass());
+
+	// Apply the force only in the X and Y
+
+}
+
+void ABoatBehaviour::TurnSails(float inValue)
+{
+	if ((Controller != nullptr) && (inValue != 0.0f))
+	{
+		//Get Sail Mesh
+		//Add Rotation to the mesh
+		// Apply the force only in the X and Y
+	}
 }
 
