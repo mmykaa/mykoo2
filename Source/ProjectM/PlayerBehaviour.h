@@ -26,15 +26,14 @@ public:
 	float TurnRateGamepad;
 
 protected:
-
-
+	
+	
 	void MoveForward(float Value);
-
 	void MoveRight(float Value);
 
 	void TurnAtRate(float Rate);
-
 	void LookUpAtRate(float Rate);
+
 
 
 protected:
@@ -46,8 +45,10 @@ protected:
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
 
 	void SwitchCharacter();
 	UPROPERTY(BlueprintReadWrite) APlayerBehaviour* OtherCharacter;
