@@ -12,6 +12,9 @@
 //////////////////////////////////////////////////////////////////////////
 // AProjectMCharacter
 
+
+#define Print(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(x));}
+
 APlayerBehaviour::APlayerBehaviour()
 {
 	// Set size for collision capsule
@@ -26,7 +29,6 @@ APlayerBehaviour::APlayerBehaviour()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
@@ -43,17 +45,17 @@ APlayerBehaviour::APlayerBehaviour()
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
+	FollowCamera->bUsePawnControlRotation = false; 
+
+
+	MaxInclination = 45.0f;
+	InclinationSpeed = 60.0f;
+	fMoveSpeed = 2;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
 
 void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -61,6 +63,9 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &APlayerBehaviour::StartRunning);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &APlayerBehaviour::StopRunning);
 
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APlayerBehaviour::SwitchCharacter);
 
@@ -102,31 +107,226 @@ void APlayerBehaviour::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
+void APlayerBehaviour::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	UpdateMoveState();
+	UpdateInclination();
+
+	// if (bIsHoldingSprint)
+	// {
+	// 	StartRunning();
+	// }
+	// else
+	// {
+	// 	StopRunning();
+	// }
+	
+}
+
 void APlayerBehaviour::MoveForward(float Value)
 {
-	
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if (Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	}
+	
+	if(Value == 0.0f)
+	{
+		bMovingForward = false;
+		bMovingBack = false;
+	}
+	if (Value > 0.0f)
+	{
+		bMovingForward = true;
+		bMovingBack = false;
+	}
+	if (Value < 0.0f)
+	{
+		bMovingForward = false;
+		bMovingBack = true;
+	}
+
 }
 
 
 void APlayerBehaviour::MoveRight(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f) )
+	if (Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, Value);
+		
+		FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	}
-	
 
+	if(Value == 0.0f)
+	{
+		bMovingRight = false;
+		bMovingLeft = false;
+	}
+	if (Value > 0.0f)
+	{
+		bMovingRight = true;
+		bMovingLeft = false;
+	}
+	if (Value < 0.0f)
+	{
+		bMovingRight = false;
+		bMovingLeft = true;
+	}
 }
 
 
 
+float APlayerBehaviour::GetRelativeDirection()
+{
+	
+	fMoveDirection = GetControlRotation().Yaw;
+	
+	float fMoveFBSum;
+	float fMoveRLSum;
+	
+	float fCovFoward = UKismetMathLibrary::Conv_BoolToFloat(bMovingForward);
+	float fCovBack = UKismetMathLibrary::Conv_BoolToFloat(bMovingBack);
+	float fCovRight = UKismetMathLibrary::Conv_BoolToFloat(bMovingRight);
+	float fCovLeft = UKismetMathLibrary::Conv_BoolToFloat(bMovingLeft);
+
+	fMoveFBSum = fCovFoward + (fCovBack * -1);
+	fMoveRLSum = fCovRight + (fCovLeft * -1);
+
+	//If Player moves FWD or BWD multiply RGT/LFT by 0.5
+	if (fMoveRLSum != 0) 
+	{
+		moveRightDegrees = 1.0f;
+	}
+	else
+	{
+		moveRightDegrees = 1.0f;
+	}
+	
+	if (fMoveFBSum < 0) // == -1
+	{
+		moveRightDegrees *= -1;
+		//Player want bwd 180
+		fMoveDirection += 180;
+
+	}
+	
+	//Player want right 90 degrees multiplier
+	if (fMoveRLSum > 0) // == 1
+	{
+		fMoveDirection = (fMoveDirection + (moveRightDegrees * 90));
+
+	}
+	
+	//Player want left 90 degrees multiplier
+	if (fMoveRLSum < 0) // == -1
+	{
+		fMoveDirection =  (fMoveDirection + (moveRightDegrees * -90)) ;
+	}
+
+	FRotator rDirection = FRotator(0.0f, fMoveDirection, 0.0f);
+
+	FRotator NormalizedDeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(rDirection, GetActorRotation());
+
+	
+	fMoveDirection = NormalizedDeltaRot.Yaw;
+	
+	return fMoveDirection;
+}
+
+void APlayerBehaviour::StartRunning()
+{
+	if (bIsHoldingSprint)
+	{
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 2, GetWorld()->GetDeltaSeconds(), 10.0f);
+	}
+	else
+	{
+		bIsHoldingSprint = true;
+	}
+}
+
+void APlayerBehaviour::StopRunning()
+{
+	if (!bIsHoldingSprint)
+	{
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 0, GetWorld()->GetDeltaSeconds(), 10.0f);
+	}
+	else
+	{
+		bIsHoldingSprint = false;
+	}
+}
+
+
+void APlayerBehaviour::UpdateInclination()
+{
+	if (bStartWalkEnded && bIsMoving)
+	{
+		float TowardValue = MathToward(CurrentInclination, fMoveDirection, InclinationSpeed * GetWorld()->GetDeltaSeconds());
+		CurrentInclination = FMath::Clamp(TowardValue, MaxInclination * -1, MaxInclination);
+	}
+}
+	
+
+float APlayerBehaviour::MathToward(float inFloatOne, float inFloatTwo, float Value)
+{
+	bool bWasLower;
+	float NewValue;
+	if (inFloatOne > inFloatTwo)
+	{
+		bWasLower = false;
+		NewValue = inFloatOne - Value;
+
+		if (inFloatTwo > Value )
+		{
+			NewValue = inFloatOne - Value;
+		}
+	}
+
+	if (inFloatOne < inFloatTwo)
+	{
+		bWasLower = true;
+		NewValue = 	inFloatOne + Value;
+		
+		if (NewValue > inFloatTwo)
+		{
+			NewValue = inFloatTwo;
+		}
+	}
+	else
+	{
+		NewValue = inFloatTwo;
+	}
+	
+
+	return NewValue;
+}
+
+void APlayerBehaviour::UpdateMoveState()
+{
+	if (bMovingForward || bMovingBack || bMovingRight || bMovingLeft)
+	{
+		bIsMoving = true;
+	}
+	else if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
+	{
+		bIsMoving = false;
+	}
+
+	if (bStartWalkEnded)
+	{
+		fInputDirection = GetRelativeDirection();
+		fInputMoveStart = GetRelativeDirection();
+	}
+	else
+	{
+		fInputDirection = GetRelativeDirection();
+	}
+
+	
+}

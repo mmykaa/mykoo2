@@ -26,13 +26,41 @@ public:
 	float TurnRateGamepad;
 
 protected:
-	
+	virtual void Tick(float DeltaSeconds) override;
 	
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
+
+
+	bool bMovingForward;
+	bool bMovingBack;
+	bool bMovingLeft;
+	bool bMovingRight;
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) bool bIsMoving;
+	float moveRightDegrees;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) float fMoveDirection;
+
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) float CurrentInclination;
+	float MaxInclination;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) float InclinationSpeed;
+	void UpdateInclination();
+	float MathToward(float inFloatOne, float inFloatTwo, float Value);
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  float fInputDirection;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  float fInputMoveStart;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  bool bStartWalkEnded;
+	void UpdateMoveState();
+	float GetRelativeDirection();
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  float fMoveSpeed;
+	bool bIsHoldingSprint;
+	void StartRunning();
+	void StopRunning();
 
 
 
