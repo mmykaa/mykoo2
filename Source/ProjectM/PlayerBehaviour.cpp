@@ -33,10 +33,8 @@ APlayerBehaviour::APlayerBehaviour()
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 350.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -50,7 +48,7 @@ APlayerBehaviour::APlayerBehaviour()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->bUsePawnControlRotation = false; 
 
-
+	bIsRunning = true;
 	MaxInclination = 45.0f;
 	InclinationSpeed = 60.0f;
 	fMoveSpeed = 2;
@@ -63,9 +61,11 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerBehaviour::StartJump);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &APlayerBehaviour::StartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &APlayerBehaviour::StopRunning);
+	PlayerInputComponent->BindAction("ToggleWalk", IE_Pressed, this, &APlayerBehaviour::ToggleWalk);
 
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APlayerBehaviour::SwitchCharacter);
 
@@ -80,6 +80,23 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 
 }
+
+
+void APlayerBehaviour::BeginPlay()
+{
+	Super::BeginPlay();
+	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
+
+}
+
+void APlayerBehaviour::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	UpdateMoveState();
+	UpdateInclination();
+	bIsInAir = GetCharacterMovement()->IsFalling();	
+}
+
 
 void APlayerBehaviour::SwitchCharacter()
 {
@@ -107,23 +124,6 @@ void APlayerBehaviour::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
-void APlayerBehaviour::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	UpdateMoveState();
-	UpdateInclination();
-
-	// if (bIsHoldingSprint)
-	// {
-	// 	StartRunning();
-	// }
-	// else
-	// {
-	// 	StopRunning();
-	// }
-	
-}
-
 void APlayerBehaviour::MoveForward(float Value)
 {
 	if (Controller != nullptr)
@@ -142,15 +142,15 @@ void APlayerBehaviour::MoveForward(float Value)
 	{
 		bMovingForward = true;
 		bMovingBack = false;
+		SetMoveSpeed();
 	}
 	if (Value < 0.0f)
 	{
 		bMovingForward = false;
 		bMovingBack = true;
+		SetMoveSpeed();
 	}
-
 }
-
 
 void APlayerBehaviour::MoveRight(float Value)
 {
@@ -171,19 +171,18 @@ void APlayerBehaviour::MoveRight(float Value)
 	{
 		bMovingRight = true;
 		bMovingLeft = false;
+		SetMoveSpeed();
 	}
 	if (Value < 0.0f)
 	{
 		bMovingRight = false;
 		bMovingLeft = true;
+		SetMoveSpeed();
 	}
 }
 
-
-
 float APlayerBehaviour::GetRelativeDirection()
 {
-	
 	fMoveDirection = GetControlRotation().Yaw;
 	
 	float fMoveFBSum;
@@ -198,14 +197,11 @@ float APlayerBehaviour::GetRelativeDirection()
 	fMoveRLSum = fCovRight + (fCovLeft * -1);
 
 	//If Player moves FWD or BWD multiply RGT/LFT by 0.5
-
-	UE_LOG(LogTemp, Warning, TEXT("RLSUM: %f"), fMoveRLSum);
-
+	
 	if (fMoveRLSum != 0) 
 	{
 		moveRightDegrees = 1.0f;
 
-		/// TO REMOVE
 		if ((!bMovingForward && !bMovingBack) && (bMovingRight || bMovingLeft))
 		{
 			moveRightDegrees = 1.0f;
@@ -215,8 +211,6 @@ float APlayerBehaviour::GetRelativeDirection()
 		{
 			moveRightDegrees = 0.5f;
 		}
-		/// TO REMOVE
-
 	}
 	else
 	{
@@ -229,7 +223,6 @@ float APlayerBehaviour::GetRelativeDirection()
 		
 		//Player want bwd 180
 		fMoveDirection += 180;
-
 	}
 	
 	//Player want right 90 degrees multiplier
@@ -257,28 +250,57 @@ float APlayerBehaviour::GetRelativeDirection()
 
 void APlayerBehaviour::StartRunning()
 {
-	if (bIsHoldingSprint)
-	{
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 2, GetWorld()->GetDeltaSeconds(), 10.0f);
-	}
-	else
-	{
-		bIsHoldingSprint = true;
-	}
+	bIsSprinting = true;
+	bIsRunning = false;
+	bIsWalking = false;
+	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,3,GetWorld()->GetDeltaSeconds(),20.0f);
 }
 
 void APlayerBehaviour::StopRunning()
 {
-	if (!bIsHoldingSprint)
+	bIsSprinting = false;
+	bIsRunning = true;
+	bIsWalking = false;
+	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,2,GetWorld()->GetDeltaSeconds(),1.0f);
+}
+
+void APlayerBehaviour::StartJump()
+{
+	bIsInAir = true;
+}
+
+void APlayerBehaviour::ToggleWalk()
+{
+	if(!bIsWalking)
 	{
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 0, GetWorld()->GetDeltaSeconds(), 10.0f);
+		bIsWalking = true;
+		bIsRunning = false;
 	}
 	else
 	{
-		bIsHoldingSprint = false;
+		bIsWalking = false;
+		bIsRunning = true;
 	}
 }
 
+void APlayerBehaviour::SetMoveSpeed()
+{
+	if (!bIsWalking && !bIsRunning && bIsSprinting)
+	{
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,3,GetWorld()->GetDeltaSeconds(),20.0f);
+		GetCharacterMovement()->JumpZVelocity = 350.f;
+	}
+	if (!bIsWalking && bIsRunning && !bIsSprinting)
+	{
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,2,GetWorld()->GetDeltaSeconds(),20.0f);
+		GetCharacterMovement()->JumpZVelocity = 350.f;
+	}
+	if (bIsWalking && !bIsRunning && !bIsSprinting)
+	{
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,1,GetWorld()->GetDeltaSeconds(),20.0f);
+		GetCharacterMovement()->JumpZVelocity = 400.f;
+	}
+}
 
 void APlayerBehaviour::UpdateInclination()
 {
@@ -288,7 +310,6 @@ void APlayerBehaviour::UpdateInclination()
 		CurrentInclination = FMath::Clamp(TowardValue, MaxInclination * -1, MaxInclination);
 	}
 }
-	
 
 float APlayerBehaviour::MathToward(float inFloatOne, float inFloatTwo, float Value)
 {
@@ -334,6 +355,7 @@ void APlayerBehaviour::UpdateMoveState()
 	if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
 	{
 		bIsMoving = false;
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
 	}
 
 	if (bStartWalkEnded)
