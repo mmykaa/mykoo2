@@ -13,7 +13,7 @@
 // AProjectMCharacter
 
 
-#define Print(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(x));}
+#define Print(x) if(GEngine){GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Yellow, TEXT(x));}
 
 APlayerBehaviour::APlayerBehaviour()
 {
@@ -198,9 +198,25 @@ float APlayerBehaviour::GetRelativeDirection()
 	fMoveRLSum = fCovRight + (fCovLeft * -1);
 
 	//If Player moves FWD or BWD multiply RGT/LFT by 0.5
+
+	UE_LOG(LogTemp, Warning, TEXT("RLSUM: %f"), fMoveRLSum);
+
 	if (fMoveRLSum != 0) 
 	{
 		moveRightDegrees = 1.0f;
+
+		/// TO REMOVE
+		if ((!bMovingForward && !bMovingBack) && (bMovingRight || bMovingLeft))
+		{
+			moveRightDegrees = 1.0f;
+		}
+
+		if ((bMovingForward || bMovingBack) && (bMovingRight || bMovingLeft))
+		{
+			moveRightDegrees = 0.5f;
+		}
+		/// TO REMOVE
+
 	}
 	else
 	{
@@ -210,6 +226,7 @@ float APlayerBehaviour::GetRelativeDirection()
 	if (fMoveFBSum < 0) // == -1
 	{
 		moveRightDegrees *= -1;
+		
 		//Player want bwd 180
 		fMoveDirection += 180;
 
@@ -313,7 +330,8 @@ void APlayerBehaviour::UpdateMoveState()
 	{
 		bIsMoving = true;
 	}
-	else if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
+
+	if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
 	{
 		bIsMoving = false;
 	}
