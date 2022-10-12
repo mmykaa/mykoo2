@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -59,9 +60,9 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerBehaviour::StartJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &APlayerBehaviour::StartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &APlayerBehaviour::StopRunning);
@@ -266,6 +267,10 @@ void APlayerBehaviour::StopRunning()
 
 void APlayerBehaviour::StartJump()
 {
+	if (!bCanJump)
+		return;
+
+	this->ACharacter::Jump();
 	bIsInAir = true;
 }
 
@@ -350,12 +355,16 @@ void APlayerBehaviour::UpdateMoveState()
 	if (bMovingForward || bMovingBack || bMovingRight || bMovingLeft)
 	{
 		bIsMoving = true;
+		bCanJump = true;
+
 	}
 
 	if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
 	{
 		bIsMoving = false;
 		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
+		bCanJump = false;
+
 	}
 
 	if (bStartWalkEnded)

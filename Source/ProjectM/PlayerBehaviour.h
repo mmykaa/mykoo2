@@ -71,6 +71,8 @@ protected:
 	void ToggleWalk();
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  bool bIsWalking;
 
+	bool bCanJump;
+
 protected:
 
 	// APawn interface
