@@ -2,6 +2,7 @@
 
 
 #include "Dock.h"
+#include <Kismet/KismetMathLibrary.h>
 
 // Sets default values
 ADock::ADock()
@@ -9,6 +10,7 @@ ADock::ADock()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	fDockingInterpSpeed = 1.0f;
 }
 
 // Called when the game starts or when spawned
@@ -37,7 +39,17 @@ void ADock::DockBoat()
 
 	//unpossess the boat, possess the player
 	//when docking move the boat to the dock location and then rotate it to the desired location
-	
+	bIsDocking = true;
+	FVector vDockingInterpPosition = UKismetMathLibrary::VInterpTo(this->GetActorLocation(), vBoatDockLocation, 
+									GetWorld()->GetDeltaSeconds(), fDockingInterpSpeed);
+
+	FRotator rDockingInterpRotation = UKismetMathLibrary::RInterpTo(this->GetActorRotation(), rBoatDockRotation,
+		GetWorld()->GetDeltaSeconds(), fDockingInterpSpeed);
+
+
+	this->SetActorLocation(vDockingInterpPosition);
+	this->SetActorRotation(rDockingInterpRotation);
+
 	//disable lola tracking
 
 }
@@ -50,6 +62,17 @@ void ADock::UnDockBoat()
 	//give Lola an the destiny that the player wants
 	 
 	//display text "sailing to open seas"
+
+	//undock boat
+	FVector vUndockingInterpPosition = UKismetMathLibrary::VInterpTo(this->GetActorLocation(), vBoatUndockLocation, 
+									GetWorld()->GetDeltaSeconds(), fUndockingInterpSpeed);
+
+	FRotator rUndockingInterpRotation = UKismetMathLibrary::RInterpTo(this->GetActorRotation(), rBoatUndockRotation,
+									GetWorld()->GetDeltaSeconds(), fUndockingInterpSpeed);
+
+	this->SetActorLocation(vUndockingInterpPosition);
+	this->SetActorRotation(rUndockingInterpRotation);
+
 
 	//unpossess the player, possess the boat
 

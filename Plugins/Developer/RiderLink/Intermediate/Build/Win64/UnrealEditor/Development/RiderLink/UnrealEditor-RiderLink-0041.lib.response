@@ -6,6 +6,6 @@
 /NAME:"UnrealEditor-RiderLink-0041.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"D:\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Module.RiderLink.cpp.obj"
-"D:\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Default.rc2.res"
-/OUT:"D:\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink-0041.lib"
+"C:\Users\mynam\OneDrive\Desktop\stuff\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Module.RiderLink.cpp.obj"
+"C:\Users\mynam\OneDrive\Desktop\stuff\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Default.rc2.res"
+/OUT:"C:\Users\mynam\OneDrive\Desktop\stuff\Projects\mykoo\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink-0041.lib"

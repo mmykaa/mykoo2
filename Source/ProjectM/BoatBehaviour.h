@@ -23,20 +23,31 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UCameraComponent* FollowCamera;
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) UStaticMeshComponent* boatMesh;
 
-	UPROPERTY(BlueprintReadWrite) TArray<float> sailSpeedByStage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TArray<float> fSailSpeedByStage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TArray<float> fTurnSpeedByStage;
 
-	int currentSailStage;
+	void UpdateCameraBoomSettings();
+
+	int iCurrentSailStage;
 	bool bIsSailing;
 
 	void SailsUp();
 	void SailsDown();
 	void Sail();
-	void UpdateBoatSpeed(int& sailStage);
 	void TurnSails(float inValue);
 };

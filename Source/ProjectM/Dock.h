@@ -25,8 +25,14 @@ public:
 
 
 	bool bIsPlayerNearDock;
+	bool bIsDocking;
 	FVector vBoatDockLocation;
 	FRotator rBoatDockRotation;
+	float fDockingInterpSpeed;
+
+	FVector vBoatUndockLocation;
+	FRotator rBoatUndockRotation;
+	float fUndockingInterpSpeed;
 
 	void DockBoat();
 	void UnDockBoat();

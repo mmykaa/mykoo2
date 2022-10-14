@@ -5,6 +5,10 @@
 #include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"  
 #include "Components/CapsuleComponent.h"
+#include <GameFramework/SpringArmComponent.h>
+#include <Camera/CameraComponent.h>
+#include <DrawDebugHelpers.h>
+#include <Kismet/KismetMathLibrary.h>
 
 // Sets default values
 ABoatBehaviour::ABoatBehaviour()
@@ -12,9 +16,22 @@ ABoatBehaviour::ABoatBehaviour()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
 	boatMesh = CreateDefaultSubobject<UStaticMeshComponent>("BoatMesh");
-	//SetRootComponent(boatMesh); this crashes the while compiling the blueprint i guess
 	boatMesh->SetupAttachment(RootComponent);
+
+	// Create a camera boom (pulls in towards the player if there is a collision)
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(boatMesh);
+	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +44,7 @@ void ABoatBehaviour::BeginPlay()
 void ABoatBehaviour::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	Sail();
 
 }
 
@@ -39,53 +57,74 @@ void ABoatBehaviour::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("BoatSailsDown", IE_Pressed, this, &ABoatBehaviour::SailsDown);
 
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ABoatBehaviour::TurnSails);
-
-
 }
 
 
+void ABoatBehaviour::UpdateCameraBoomSettings()
+{
+
+	if (iCurrentSailStage == 0)
+	{
+		CameraBoom->CameraLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagSpeed, 3.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraRotationLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraRotationLagSpeed, 3.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraLagMaxDistance = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagMaxDistance, 100.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+	}
+
+	if (iCurrentSailStage == 1)
+	{
+		CameraBoom->CameraLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagSpeed, 2.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraRotationLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraRotationLagSpeed, 2.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraLagMaxDistance = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagMaxDistance, 200.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+	}
+
+	if (iCurrentSailStage == 2)
+	{
+		CameraBoom->CameraLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagSpeed, 1.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraRotationLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraRotationLagSpeed, 1.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+		CameraBoom->CameraLagMaxDistance = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagMaxDistance, 300.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+	}
+}
+
 void ABoatBehaviour::SailsUp()
 {
-	if (currentSailStage <= 0)
+	if (iCurrentSailStage <= 0)
 		return;
 
-	--currentSailStage;
+	--iCurrentSailStage;
+	UpdateCameraBoomSettings();
 }
 
 void ABoatBehaviour::SailsDown()
 {
-	if (currentSailStage >= sailSpeedByStage.Num() - 1)
+	if (iCurrentSailStage >= fSailSpeedByStage.Num() - 1)
 		return;
 
-	++currentSailStage;
+	++iCurrentSailStage;
+	UpdateCameraBoomSettings();
+
 }
 
 void ABoatBehaviour::Sail()
 {
-	if (currentSailStage <= 0)
+	if (iCurrentSailStage <= 0)
 		return;
 
 	// Apply the force only in the X and Y
 
-	this->GetCapsuleComponent()->AddForceAtLocation(FVector(sailSpeedByStage[currentSailStage], sailSpeedByStage[currentSailStage],0),
-												this->GetCapsuleComponent()->GetCenterOfMass());
-
+	this->GetCapsuleComponent()->AddForceAtLocation(FVector(GetActorForwardVector().X * fSailSpeedByStage[iCurrentSailStage],
+		GetActorForwardVector().Y * fSailSpeedByStage[iCurrentSailStage],0), this->GetCapsuleComponent()->GetCenterOfMass());
 
 }
 
 void ABoatBehaviour::TurnSails(float inValue)
 {
-	if ((Controller != nullptr) && (inValue != 0.0f))
+	if ((Controller != nullptr))
 	{
 		//Get Sail Mesh
 		//Add Rotation to the mesh
-		// Apply the force only in the X and Y
 		
-		FQuat qRotation;
-		qRotation.X = 0;
-		qRotation.Y = 0;
-		qRotation.Z = inValue / 10.f;
-		this->AddActorLocalRotation(qRotation);
+		FHitResult hitResult;
+		this->K2_AddActorWorldRotation(FRotator(0, fTurnSpeedByStage[iCurrentSailStage] * inValue,0) ,false, hitResult,false);
 	}
 }
 
