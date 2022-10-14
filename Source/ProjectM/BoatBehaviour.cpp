@@ -13,7 +13,8 @@ ABoatBehaviour::ABoatBehaviour()
 	PrimaryActorTick.bCanEverTick = true;
 
 	boatMesh = CreateDefaultSubobject<UStaticMeshComponent>("BoatMesh");
-	SetRootComponent(boatMesh);
+	//SetRootComponent(boatMesh); this crashes the while compiling the blueprint i guess
+	boatMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -41,6 +42,7 @@ void ABoatBehaviour::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 
 }
+
 
 void ABoatBehaviour::SailsUp()
 {

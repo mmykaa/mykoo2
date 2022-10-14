@@ -32,6 +32,7 @@ public:
 	UPROPERTY(BlueprintReadWrite) TArray<float> sailSpeedByStage;
 
 	int currentSailStage;
+	bool bIsSailing;
 
 	void SailsUp();
 	void SailsDown();
