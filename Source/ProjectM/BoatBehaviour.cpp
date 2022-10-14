@@ -13,14 +13,13 @@ ABoatBehaviour::ABoatBehaviour()
 	PrimaryActorTick.bCanEverTick = true;
 
 	boatMesh = CreateDefaultSubobject<UStaticMeshComponent>("BoatMesh");
-	boatMesh->SetupAttachment(RootComponent);
+	SetRootComponent(boatMesh);
 }
 
 // Called when the game starts or when spawned
 void ABoatBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

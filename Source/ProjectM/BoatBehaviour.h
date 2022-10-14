@@ -27,7 +27,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-	UPROPERTY(BlueprintReadWrite) UStaticMeshComponent* boatMesh;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) UStaticMeshComponent* boatMesh;
 
 	UPROPERTY(BlueprintReadWrite) TArray<float> sailSpeedByStage;
 
