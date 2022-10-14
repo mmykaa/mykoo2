@@ -29,4 +29,5 @@ public:
 	FRotator rBoatDockRotation;
 
 	void DockBoat();
+	void UnDockBoat();
 };

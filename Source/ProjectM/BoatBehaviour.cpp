@@ -65,11 +65,11 @@ void ABoatBehaviour::Sail()
 	if (currentSailStage <= 0)
 		return;
 
+	// Apply the force only in the X and Y
 
 	this->GetCapsuleComponent()->AddForceAtLocation(FVector(sailSpeedByStage[currentSailStage], sailSpeedByStage[currentSailStage],0),
 												this->GetCapsuleComponent()->GetCenterOfMass());
 
-	// Apply the force only in the X and Y
 
 }
 
@@ -80,6 +80,12 @@ void ABoatBehaviour::TurnSails(float inValue)
 		//Get Sail Mesh
 		//Add Rotation to the mesh
 		// Apply the force only in the X and Y
+		
+		FQuat qRotation;
+		qRotation.X = 0;
+		qRotation.Y = 0;
+		qRotation.Z = inValue / 10.f;
+		this->AddActorLocalRotation(qRotation);
 	}
 }
 

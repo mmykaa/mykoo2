@@ -27,6 +27,31 @@ void ADock::Tick(float DeltaTime)
 
 void ADock::DockBoat()
 {
+	
+	//if is the first time arriving to the island
+		// Play Cinematic
+		// display Island Title
+	
+	//if is not the first time
+		//Display Island Title
+
+	//unpossess the boat, possess the player
 	//when docking move the boat to the dock location and then rotate it to the desired location
+	
+	//disable lola tracking
+
+}
+
+void ADock::UnDockBoat()
+{
+	//enable lola tracking
+	
+	//focus lola and wait for the player to input the next travel destiny
+	//give Lola an the destiny that the player wants
+	 
+	//display text "sailing to open seas"
+
+	//unpossess the player, possess the boat
+
 }
 
