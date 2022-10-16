@@ -36,6 +36,14 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	void SetUnique();
+	AActor* Uniques;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<AActor> UniquesHelperClass;
+
+	void SwitchCharacter();
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) ACharacter* PlayerCharacter;
+
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) UStaticMeshComponent* boatMesh;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) TArray<float> fSailSpeedByStage;
@@ -45,6 +53,7 @@ public:
 
 	int iCurrentSailStage;
 	bool bIsSailing;
+
 
 	void SailsUp();
 	void SailsDown();

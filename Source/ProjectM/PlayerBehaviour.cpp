@@ -9,6 +9,9 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UniquesHelper.h"
+#include <Kismet/GameplayStatics.h>
+
 
 //////////////////////////////////////////////////////////////////////////
 // AProjectMCharacter
@@ -87,7 +90,7 @@ void APlayerBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
 	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
-
+	SetUnique();
 }
 
 void APlayerBehaviour::Tick(float DeltaSeconds)
@@ -101,16 +104,33 @@ void APlayerBehaviour::Tick(float DeltaSeconds)
 
 void APlayerBehaviour::SwitchCharacter()
 {
-	if (OtherCharacter != nullptr && GetController())
+	UE_LOG(LogTemp, Warning, TEXT("TRYING TO SWAP TO BOAT"));
+	AActor* BoatActor = Cast<AUniquesHelper>(Uniques)->GetBoatUnique();
+	BoatCharacter = Cast<ACharacter>(BoatActor);
+
+	if (BoatCharacter != nullptr && GetController())
 	{
 		AController* temp = GetController();
 		
 		if (temp)
 		{
 			temp->UnPossess();
-			temp->Possess(OtherCharacter);
+			temp->Possess(BoatCharacter);
+			UE_LOG(LogTemp, Warning, TEXT("BOAT"));
+
 		}
 	}
+}
+
+void APlayerBehaviour::SetUnique()
+{
+	if (!UniquesHelperClass)
+		return;
+
+
+	Uniques = UGameplayStatics::GetActorOfClass(GetWorld(), UniquesHelperClass);
+
+	Cast<AUniquesHelper>(Uniques)->SetPlayerUnique(this);
 }
 
 void APlayerBehaviour::TurnAtRate(float Rate)

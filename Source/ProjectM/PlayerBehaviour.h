@@ -88,6 +88,11 @@ public:
 
 
 	void SwitchCharacter();
-	UPROPERTY(BlueprintReadWrite) APlayerBehaviour* OtherCharacter;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) ACharacter* BoatCharacter;
+
+	void SetUnique();
+	AActor* Uniques;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<AActor> UniquesHelperClass;
+
 };
 

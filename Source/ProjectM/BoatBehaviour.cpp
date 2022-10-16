@@ -9,6 +9,8 @@
 #include <Camera/CameraComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
+#include "UniquesHelper.h"
 
 // Sets default values
 ABoatBehaviour::ABoatBehaviour()
@@ -38,6 +40,7 @@ ABoatBehaviour::ABoatBehaviour()
 void ABoatBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
+	SetUnique();
 }
 
 // Called every frame
@@ -55,10 +58,21 @@ void ABoatBehaviour::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("BoatSailsUp", IE_Pressed, this, &ABoatBehaviour::SailsUp);
 	PlayerInputComponent->BindAction("BoatSailsDown", IE_Pressed, this, &ABoatBehaviour::SailsDown);
+	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &ABoatBehaviour::SwitchCharacter);
 
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ABoatBehaviour::TurnSails);
 }
 
+
+void ABoatBehaviour::SetUnique()
+{
+	if (!UniquesHelperClass) 
+		return;
+
+	Uniques = UGameplayStatics::GetActorOfClass(GetWorld(), UniquesHelperClass);
+
+	Cast<AUniquesHelper>(Uniques)->SetBoatUnique(this);
+}
 
 void ABoatBehaviour::UpdateCameraBoomSettings()
 {
@@ -82,6 +96,27 @@ void ABoatBehaviour::UpdateCameraBoomSettings()
 		CameraBoom->CameraLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagSpeed, 1.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
 		CameraBoom->CameraRotationLagSpeed = UKismetMathLibrary::FInterpTo(CameraBoom->CameraRotationLagSpeed, 1.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
 		CameraBoom->CameraLagMaxDistance = UKismetMathLibrary::FInterpTo(CameraBoom->CameraLagMaxDistance, 300.0f, GetWorld()->GetDeltaSeconds(), 0.2f);
+	}
+}
+
+void ABoatBehaviour::SwitchCharacter()
+{
+	UE_LOG(LogTemp, Warning, TEXT("TRYING TO SWAP TO Player"));
+
+	AActor* PlayerActor = Cast<AUniquesHelper>(Uniques)->GetPlayerUnique();
+	PlayerCharacter = Cast<ACharacter>(PlayerActor);
+
+	if (PlayerCharacter != nullptr && GetController())
+	{
+		AController* temp = GetController();
+
+		if (temp)
+		{
+			temp->UnPossess();
+			temp->Possess(PlayerCharacter);
+			UE_LOG(LogTemp, Warning, TEXT("PLAYER"));
+
+		}
 	}
 }
 
