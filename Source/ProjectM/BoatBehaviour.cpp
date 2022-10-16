@@ -59,7 +59,6 @@ void ABoatBehaviour::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("BoatSailsUp", IE_Pressed, this, &ABoatBehaviour::SailsUp);
 	PlayerInputComponent->BindAction("BoatSailsDown", IE_Pressed, this, &ABoatBehaviour::SailsDown);
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &ABoatBehaviour::SwitchCharacter);
-
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ABoatBehaviour::TurnSails);
 }
 
