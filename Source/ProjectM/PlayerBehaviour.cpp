@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "UniquesHelper.h"
 #include <Kismet/GameplayStatics.h>
+#include "InventoryComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -51,6 +52,8 @@ APlayerBehaviour::APlayerBehaviour()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->bUsePawnControlRotation = false; 
+	
+	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComp"));
 
 	bIsRunning = true;
 	MaxInclination = 45.0f;
@@ -63,7 +66,6 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerBehaviour::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
@@ -82,7 +84,11 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &APlayerBehaviour::LookUpAtRate);
 
+	PlayerInputComponent->BindAction("InventoryToggle", IE_Pressed, this, &APlayerBehaviour::InventoryOpen);
+	PlayerInputComponent->BindAction("InventoryToggle", IE_Released, this, &APlayerBehaviour::InventoryClose);
 
+	PlayerInputComponent->BindAction("InventoryCyclePositive", IE_Pressed, this, &APlayerBehaviour::InventoryCycleRight);
+	PlayerInputComponent->BindAction("InventoryCycleNegative", IE_Pressed, this, &APlayerBehaviour::InventoryCycleLeft);
 }
 
 

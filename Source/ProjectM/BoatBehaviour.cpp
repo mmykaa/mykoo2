@@ -48,7 +48,6 @@ void ABoatBehaviour::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Sail();
-
 }
 
 // Called to bind functionality to input
@@ -114,6 +113,8 @@ void ABoatBehaviour::SwitchCharacter()
 			temp->UnPossess();
 			temp->Possess(PlayerCharacter);
 			UE_LOG(LogTemp, Warning, TEXT("PLAYER"));
+			iCurrentSailStage = 0;
+			
 
 		}
 	}

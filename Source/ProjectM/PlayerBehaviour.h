@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include <Components/InputComponent.h>
+#include "InventoryComponent.h"
 #include "PlayerBehaviour.generated.h"
 
 UCLASS(config=Game)
@@ -93,6 +95,13 @@ public:
 	void SetUnique();
 	AActor* Uniques;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<AActor> UniquesHelperClass;
+
+
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere) UInventoryComponent* PlayerInventory;  
+	void InventoryOpen() { Cast<UInventoryComponent>(PlayerInventory)->OpenInventory(); }
+	void InventoryClose() { Cast<UInventoryComponent>(PlayerInventory)->CloseInventory(); }
+	void InventoryCycleRight() { Cast<UInventoryComponent>(PlayerInventory)->CycleRight(); }
+	void InventoryCycleLeft() { Cast<UInventoryComponent>(PlayerInventory)->CycleLeft(); }
 
 };
 
