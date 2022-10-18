@@ -26,7 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
-	TArray<UItem*> Inventory;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)	TArray<UItem*> Inventory;
 
 	void AddToInventory(UItem* InItem);
 	

@@ -12,6 +12,7 @@
 #include "UniquesHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include "InventoryComponent.h"
+#include "HealthComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +55,7 @@ APlayerBehaviour::APlayerBehaviour()
 	FollowCamera->bUsePawnControlRotation = false; 
 	
 	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComp"));
+	HealthSystem = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	bIsRunning = true;
 	MaxInclination = 45.0f;

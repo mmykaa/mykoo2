@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include <Components/InputComponent.h>
 #include "InventoryComponent.h"
+#include "HealthComponent.h"
 #include "PlayerBehaviour.generated.h"
 
 UCLASS(config=Game)
@@ -32,22 +33,38 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	
+
+protected:
+
+	// APawn interface
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// End of APawn interface
+
+
+#pragma region Controls
+
+protected:
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
 
+#pragma endregion Controls
+
+#pragma region Locomotion
+
 
 	bool bMovingForward;
 	bool bMovingBack;
 	bool bMovingLeft;
 	bool bMovingRight;
-	
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) bool bIsMoving;
 	float moveRightDegrees;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) float fMoveDirection;
-    
+
 	void SetMoveSpeed();
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) float CurrentInclination;
 	float MaxInclination;
@@ -69,25 +86,25 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) bool bIsInAir;
 	void StartJump();
-	
+
 	void ToggleWalk();
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)  bool bIsWalking;
 
 	bool bCanJump;
 
-protected:
+#pragma endregion Locomotion
 
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
+#pragma region Camera
 
-public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+#pragma endregion Camera
+
+#pragma region SwitchCharacters
 
 	void SwitchCharacter();
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) ACharacter* BoatCharacter;
@@ -96,12 +113,22 @@ public:
 	AActor* Uniques;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<AActor> UniquesHelperClass;
 
+#pragma endregion SwitchCharacters
 
-	UPROPERTY(BlueprintReadOnly,VisibleAnywhere) UInventoryComponent* PlayerInventory;  
+#pragma region Components
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UInventoryComponent* PlayerInventory;
 	void InventoryOpen() { Cast<UInventoryComponent>(PlayerInventory)->OpenInventory(); }
 	void InventoryClose() { Cast<UInventoryComponent>(PlayerInventory)->CloseInventory(); }
 	void InventoryCycleRight() { Cast<UInventoryComponent>(PlayerInventory)->CycleRight(); }
 	void InventoryCycleLeft() { Cast<UInventoryComponent>(PlayerInventory)->CycleLeft(); }
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
+
+
+#pragma endregion Components
+	
+
 
 };
 
