@@ -24,5 +24,16 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iStatsDamage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iStatsDefence;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iStatsHealth;
+
+public:
+	int GetStatsDamage() { return iStatsDamage; }
+	int GetStatsDefence() { return iStatsDefence; }
+	int GetStatsHealth() { return iStatsHealth; }
+
+	void SetStatsHealth(int inStatsHealth) { iStatsHealth = inStatsHealth; }
+
 };

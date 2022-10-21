@@ -54,7 +54,8 @@ APlayerBehaviour::APlayerBehaviour()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->bUsePawnControlRotation = false; 
 	
-	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComp"));
+	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	StatsComponent = CreateDefaultSubobject<UStatsComponent>(TEXT("StatsComponent"));
 	HealthSystem = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	bIsRunning = true;
@@ -99,6 +100,10 @@ void APlayerBehaviour::BeginPlay()
 	Super::BeginPlay();
 	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
 	SetUnique();
+
+	if (HealthSystem == nullptr) return;
+	Cast<UHealthComponent>(HealthSystem)->GetBaseStats(StatsComponent);
+
 }
 
 void APlayerBehaviour::Tick(float DeltaSeconds)

@@ -16,12 +16,16 @@ UCLASS(Blueprintable)
 class PROJECTM_API UItem : public UObject
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	FString ItemName;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	FString ItemDescription;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	UTexture2D* ItemIcon;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) UStaticMeshComponent* ItemMesh;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) bool bCanItemStack;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iItemAmount;
+
+	UFUNCTION() void Item_Use();
+
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere) UStaticMeshComponent* ItemMesh;
 };

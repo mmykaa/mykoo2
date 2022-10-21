@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "StatsComponent.h"
 #include "HealthComponent.generated.h"
 
 
@@ -24,12 +25,18 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)	int iMaxHealth;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iCurrentHealth;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) int iMaxHealth;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) int iCurrentHealth;
+	UPROPERTY() int iDefence;
 
-	void TakeDamage(int DamageAmount);
-	void Heal(int HealAmount);
-	void IncreaseMaxHealth(int IncreaseAmount);
-	void DecreaseMaxHealth(int DecreaseAmount);
+	void TakeDamage(int inDamageAmount);
+	void Heal(int inHealAmount);
+	void IncreaseMaxHealth(int inIncreaseAmount);
+	void DecreaseMaxHealth(int inDecreaseAmount);
 
+	UPROPERTY()	UStatsComponent* StatsComponent;
+
+	void GetBaseStats(UStatsComponent* inStatsComponent);
+	void SetBaseHealth();
+	void UpdateStatsHealth();
 };

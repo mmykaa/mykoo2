@@ -123,6 +123,7 @@ protected:
 	void InventoryCycleRight() { Cast<UInventoryComponent>(PlayerInventory)->CycleRight(); }
 	void InventoryCycleLeft() { Cast<UInventoryComponent>(PlayerInventory)->CycleLeft(); }
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UStatsComponent* StatsComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
 
 

@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "StatsComponent.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -19,8 +20,6 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	iCurrentHealth = iMaxHealth;
-	// ...
 }
 
 
@@ -29,14 +28,20 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
-void UHealthComponent::TakeDamage(int DamageAmount)
+void UHealthComponent::TakeDamage(int inDamageAmount)
 {
 	if (iCurrentHealth > 0)
 	{
-		iCurrentHealth -= DamageAmount;
+		int m_DamageToApply = inDamageAmount - iDefence;
+
+		if (m_DamageToApply <= 0)
+		{
+			return;
+		}
+
+		iCurrentHealth -= m_DamageToApply;
 
 		if (iCurrentHealth <= 0)
 		{
@@ -45,11 +50,11 @@ void UHealthComponent::TakeDamage(int DamageAmount)
 	}
 }
 
-void UHealthComponent::Heal(int HealAmount)
+void UHealthComponent::Heal(int inHealAmount)
 {
 	if (iCurrentHealth < iMaxHealth)
 	{
-		iCurrentHealth += HealAmount;
+		iCurrentHealth += inHealAmount;
 
 		if (iCurrentHealth >= iMaxHealth)
 		{
@@ -58,26 +63,50 @@ void UHealthComponent::Heal(int HealAmount)
 	}
 }
 
-void UHealthComponent::IncreaseMaxHealth(int IncreaseAmount)
+void UHealthComponent::IncreaseMaxHealth(int inIncreaseAmount)
 {
 	if (iMaxHealth > 0 && iCurrentHealth > 0)
 	{
-		iMaxHealth += IncreaseAmount;
+		iMaxHealth += inIncreaseAmount;
+
+		UpdateStatsHealth();
 	}
 }
 
-void UHealthComponent::DecreaseMaxHealth(int DecreaseAmount)
+void UHealthComponent::DecreaseMaxHealth(int inDecreaseAmount)
 {
 	if (iMaxHealth > 0 && iCurrentHealth > 0)
 	{
-		iMaxHealth -= DecreaseAmount;
+		iMaxHealth -= inDecreaseAmount;
 
 		int m_minMaxHealth = ((iMaxHealth / 100) * 20);
 		
-		if (iMaxHealth -= DecreaseAmount < m_minMaxHealth)
+		if (iMaxHealth -= inDecreaseAmount < m_minMaxHealth)
 		{
 			iMaxHealth = m_minMaxHealth;
 		}
+
+		UpdateStatsHealth();
 	}
+}
+
+void UHealthComponent::GetBaseStats(UStatsComponent* inStatsComponent)
+{
+	StatsComponent = Cast<UStatsComponent>(inStatsComponent);
+	SetBaseHealth();
+}
+
+void UHealthComponent::SetBaseHealth()
+{
+
+	iMaxHealth = StatsComponent->GetStatsHealth();
+	iCurrentHealth = iMaxHealth;
+	
+	iDefence = StatsComponent->GetStatsDefence();
+}
+
+void UHealthComponent::UpdateStatsHealth()
+{
+	StatsComponent->SetStatsHealth(iMaxHealth);
 }
 
