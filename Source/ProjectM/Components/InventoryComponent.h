@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Item.h"
+#include "ProjectM/Items/Base/Item.h"
 #include "InventoryComponent.generated.h"
 
 

@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include <Components/InputComponent.h>
-#include "InventoryComponent.h"
-#include "HealthComponent.h"
+#include "../Components/InventoryComponent.h"
+#include "../Components/HealthComponent.h"
+#include "../Components/StatsComponent.h"
 #include "PlayerBehaviour.generated.h"
 
 UCLASS(config=Game)
@@ -126,7 +127,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UStatsComponent* StatsComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
 
-
+	 
 #pragma endregion Components
 	
 

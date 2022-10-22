@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item.h"
+#include "ProjectM/Items/Base/Item.h"
 #include "Item_Banner.generated.h"
 
 /**
@@ -25,8 +25,11 @@ UCLASS()
 class PROJECTM_API UItem_Banner : public UItem
 {
 	GENERATED_BODY()
+	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) EBannerType eBannerType;
+
+	virtual void Item_Use() override;
 
 	void UseBanner();
 	void ApplyDamageBanner();

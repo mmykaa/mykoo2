@@ -4,6 +4,12 @@
 #include "Item_Banner.h"
 
 
+void UItem_Banner::Item_Use()
+{
+	Super::Item_Use();
+	UseBanner();
+}
+
 void UItem_Banner::UseBanner()
 {
 	switch (eBannerType)

@@ -9,10 +9,10 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "UniquesHelper.h"
+#include "../Systems/UniquesHelper.h"
 #include <Kismet/GameplayStatics.h>
-#include "InventoryComponent.h"
-#include "HealthComponent.h"
+#include "../Components/InventoryComponent.h"
+#include "../Components/HealthComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////

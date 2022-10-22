@@ -10,7 +10,7 @@
 #include <DrawDebugHelpers.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Kismet/GameplayStatics.h>
-#include "UniquesHelper.h"
+#include "../Systems/UniquesHelper.h"
 
 // Sets default values
 ABoatBehaviour::ABoatBehaviour()

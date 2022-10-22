@@ -21,11 +21,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	FString ItemName;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	FString ItemDescription;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	UTexture2D* ItemIcon;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)	TSubclassOf<AActor> ItemActor;
+
+
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) bool bCanItemStack;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iItemAmount;
 
-	UFUNCTION() void Item_Use();
+	UFUNCTION() virtual void Item_Use();
 
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere) UStaticMeshComponent* ItemMesh;
 };
