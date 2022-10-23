@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "ProjectM/Items/Base/Item.h"
+#include <Components/BoxComponent.h>
+#include "InteractableActor.h"
 #include "Herb.generated.h"
 
 UCLASS()
-class PROJECTM_API AHerb : public AActor
+class PROJECTM_API AHerb : public AInteractableActor
 {
 	GENERATED_BODY()
 	
@@ -24,7 +24,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) UItem* ItemToDrop;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<UObject> ItemToDrop;
 
 	bool bIsHarverted;
 
@@ -34,4 +34,7 @@ public:
 	FTimerHandle HarvestTimer;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float fTimeBeetweenRestock;
 	void Restock();
+	
+	virtual void OnPlayerOverlapBegin(AActor* OtherActor) override;
+	virtual void OnPlayerOverlapEnd(AActor* OtherActor) override;
 };

@@ -42,15 +42,6 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UInventoryComponent::OpenInventory()
 {
-// 	if (!bIsInteractingWithInventory)
-// 	{
-// 		bIsInteractingWithInventory = true;
-// 	}
-// 	else
-// 	{
-// 		bIsInteractingWithInventory = false;
-// 	}
-// 	
  	bIsInteractingWithInventory = true;
 	UE_LOG(LogTemp, Warning, TEXT("OPEN"));
 }
@@ -65,32 +56,32 @@ void UInventoryComponent::CloseInventory()
 void UInventoryComponent::CycleRight()
 {
 
-	if (!bIsInteractingWithInventory) return;
-
-	if (Inventory.Num() >= 5)
+	if (bIsInteractingWithInventory)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RIGHT"));
+		if (Inventory.Num() >= 5)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("RIGHT"));
 
-		++iTwoLeftSlot;
-		HandlePositiveOverflow(iTwoLeftSlot);
-		UE_LOG(LogTemp, Warning, TEXT("TL: %d"), iTwoLeftSlot);
+			++iTwoLeftSlot;
+			HandlePositiveOverflow(iTwoLeftSlot);
+			UE_LOG(LogTemp, Warning, TEXT("TL: %d"), iTwoLeftSlot);
 
-		++iOneLeftSlot;
-		HandlePositiveOverflow(iOneLeftSlot);
-		UE_LOG(LogTemp, Warning, TEXT("OL: %d"), iOneLeftSlot);
+			++iOneLeftSlot;
+			HandlePositiveOverflow(iOneLeftSlot);
+			UE_LOG(LogTemp, Warning, TEXT("OL: %d"), iOneLeftSlot);
 
-		++iCurrentSlotSelected;
-		HandlePositiveOverflow(iCurrentSlotSelected);
-		UE_LOG(LogTemp, Warning, TEXT("CS: %d"), iCurrentSlotSelected);
+			++iCurrentSlotSelected;
+			HandlePositiveOverflow(iCurrentSlotSelected);
+			UE_LOG(LogTemp, Warning, TEXT("CS: %d"), iCurrentSlotSelected);
 
-		++iOneRightSlot;
-		HandlePositiveOverflow(iOneRightSlot);
-		UE_LOG(LogTemp, Warning, TEXT("OR: %d"), iOneRightSlot);
+			++iOneRightSlot;
+			HandlePositiveOverflow(iOneRightSlot);
+			UE_LOG(LogTemp, Warning, TEXT("OR: %d"), iOneRightSlot);
 
-		++iTwoRightSlot;
-		HandlePositiveOverflow(iTwoRightSlot);
-		UE_LOG(LogTemp, Warning, TEXT("TR: %d"), iTwoRightSlot);
-
+			++iTwoRightSlot;
+			HandlePositiveOverflow(iTwoRightSlot);
+			UE_LOG(LogTemp, Warning, TEXT("TR: %d"), iTwoRightSlot);
+		}
 	}
 }
 
@@ -105,32 +96,32 @@ void UInventoryComponent::HandlePositiveOverflow(int& SlotToHandle)
 
 void UInventoryComponent::CycleLeft()
 {
-
-	if (!bIsInteractingWithInventory) return;
-
-	if (Inventory.Num() >= 5)
+	if (bIsInteractingWithInventory)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LEFT"));
+		if (Inventory.Num() >= 5)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LEFT"));
 
-		--iTwoLeftSlot;
-		HandleNegativeOverflow(iTwoLeftSlot);
-		UE_LOG(LogTemp, Warning, TEXT("TL: %d"), iTwoLeftSlot);
+			--iTwoLeftSlot;
+			HandleNegativeOverflow(iTwoLeftSlot);
+			UE_LOG(LogTemp, Warning, TEXT("TL: %d"), iTwoLeftSlot);
 
-		--iOneLeftSlot;
-		HandleNegativeOverflow(iOneLeftSlot);
-		UE_LOG(LogTemp, Warning, TEXT("OL: %d"), iOneLeftSlot);
+			--iOneLeftSlot;
+			HandleNegativeOverflow(iOneLeftSlot);
+			UE_LOG(LogTemp, Warning, TEXT("OL: %d"), iOneLeftSlot);
 
-		--iCurrentSlotSelected;
-		HandleNegativeOverflow(iCurrentSlotSelected);
-		UE_LOG(LogTemp, Warning, TEXT("CS: %d"), iCurrentSlotSelected);
+			--iCurrentSlotSelected;
+			HandleNegativeOverflow(iCurrentSlotSelected);
+			UE_LOG(LogTemp, Warning, TEXT("CS: %d"), iCurrentSlotSelected);
 
-		--iOneRightSlot;
-		HandleNegativeOverflow(iOneRightSlot);
-		UE_LOG(LogTemp, Warning, TEXT("OR: %d"), iOneRightSlot);
+			--iOneRightSlot;
+			HandleNegativeOverflow(iOneRightSlot);
+			UE_LOG(LogTemp, Warning, TEXT("OR: %d"), iOneRightSlot);
 
-		--iTwoRightSlot;
-		HandleNegativeOverflow(iTwoRightSlot);
-		UE_LOG(LogTemp, Warning, TEXT("TR: %d"), iTwoRightSlot);
+			--iTwoRightSlot;
+			HandleNegativeOverflow(iTwoRightSlot);
+			UE_LOG(LogTemp, Warning, TEXT("TR: %d"), iTwoRightSlot);
+		}
 	}
 }
 

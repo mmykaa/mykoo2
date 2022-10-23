@@ -2,13 +2,14 @@
 
 
 #include "../WorldActors/Herb.h"
+#include "../Controllers/PlayerBehaviour.h"
+
 
 // Sets default values
 AHerb::AHerb()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -22,9 +23,8 @@ void AHerb::BeginPlay()
 void AHerb::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
 }
+
 
 void AHerb::Harvest()
 {
@@ -37,3 +37,20 @@ void AHerb::Restock()
 	bIsHarverted = false;
 }
 
+
+void AHerb::OnPlayerOverlapBegin(AActor* OtherActor)
+{
+	APlayerBehaviour * m_Player = Cast<APlayerBehaviour>(OtherActor);
+	m_Player->AddInteractableToQueue(this);
+	UE_LOG(LogTemp, Warning, TEXT("CHILD BEGIN"));
+}
+
+
+void AHerb::OnPlayerOverlapEnd(AActor* OtherActor)
+{
+	APlayerBehaviour* m_Player = Cast<APlayerBehaviour>(OtherActor);
+	m_Player->RemoveInteractableFromQueue(this);
+	UE_LOG(LogTemp, Warning, TEXT("CHILD END"));
+}
+
+		

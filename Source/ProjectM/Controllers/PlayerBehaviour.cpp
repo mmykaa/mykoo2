@@ -9,17 +9,14 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "../Systems/UniquesHelper.h"
+#include "ProjectM/Systems/UniquesHelper.h"
 #include <Kismet/GameplayStatics.h>
 #include "../Components/InventoryComponent.h"
-#include "../Components/HealthComponent.h"
+#include "ProjectM/Components/HealthComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
 // AProjectMCharacter
-
-
-#define Print(x) if(GEngine){GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Yellow, TEXT(x));}
 
 APlayerBehaviour::APlayerBehaviour()
 {
@@ -54,7 +51,7 @@ APlayerBehaviour::APlayerBehaviour()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->bUsePawnControlRotation = false; 
 	
-	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>(TEXT("StatsComponent"));
 	HealthSystem = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
@@ -92,6 +89,9 @@ void APlayerBehaviour::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	PlayerInputComponent->BindAction("InventoryCyclePositive", IE_Pressed, this, &APlayerBehaviour::InventoryCycleRight);
 	PlayerInputComponent->BindAction("InventoryCycleNegative", IE_Pressed, this, &APlayerBehaviour::InventoryCycleLeft);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerBehaviour::Interact);
+
 }
 
 
@@ -117,20 +117,17 @@ void APlayerBehaviour::Tick(float DeltaSeconds)
 
 void APlayerBehaviour::SwitchCharacter()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TRYING TO SWAP TO BOAT"));
 	AActor* BoatActor = Cast<AUniquesHelper>(Uniques)->GetBoatUnique();
 	BoatCharacter = Cast<ACharacter>(BoatActor);
 
 	if (BoatCharacter != nullptr && GetController())
 	{
-		AController* temp = GetController();
+		AController* m_TempController = GetController();
 		
-		if (temp)
+		if (m_TempController)
 		{
-			temp->UnPossess();
-			temp->Possess(BoatCharacter);
-			UE_LOG(LogTemp, Warning, TEXT("BOAT"));
-
+			m_TempController->UnPossess();
+			m_TempController->Possess(BoatCharacter);
 		}
 	}
 }
@@ -140,10 +137,47 @@ void APlayerBehaviour::SetUnique()
 	if (!UniquesHelperClass)
 		return;
 
-
 	Uniques = UGameplayStatics::GetActorOfClass(GetWorld(), UniquesHelperClass);
 
 	Cast<AUniquesHelper>(Uniques)->SetPlayerUnique(this);
+}
+
+void APlayerBehaviour::AddInteractableToQueue(AActor* inActor)
+{
+	//Add Actor In the last entry of the queue
+	InteractablesQueue.Add(inActor);
+}
+
+void APlayerBehaviour::RemoveInteractableFromQueue(AActor* inActor)
+{
+	//Find Actor In Queue
+	//TArray::Find(inActor)
+
+	//Remove Actor from Queue
+}
+
+void APlayerBehaviour::Interact()
+{
+	if (CanInteract())
+	{
+		//Get the Last Entry on the Queue
+		//Interact with it
+	}
+}
+
+bool APlayerBehaviour::CanInteract()
+{
+	bool m_bCanInteract;
+	if (InteractablesQueue.Num() > 0)
+	{
+		m_bCanInteract = true;
+	}
+	else if (InteractablesQueue.Num() <= 0)
+	{
+		m_bCanInteract = false;
+	}
+
+	return m_bCanInteract;
 }
 
 void APlayerBehaviour::TurnAtRate(float Rate)

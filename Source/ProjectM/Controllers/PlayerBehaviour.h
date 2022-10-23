@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include <Components/InputComponent.h>
+#include "ProjectM/Components/HealthComponent.h"
+#include "ProjectM/Components/StatsComponent.h"
 #include "../Components/InventoryComponent.h"
-#include "../Components/HealthComponent.h"
-#include "../Components/StatsComponent.h"
 #include "PlayerBehaviour.generated.h"
 
 UCLASS(config=Game)
@@ -118,19 +118,32 @@ protected:
 
 #pragma region Components
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UInventoryComponent* PlayerInventory;
-	void InventoryOpen() { Cast<UInventoryComponent>(PlayerInventory)->OpenInventory(); }
-	void InventoryClose() { Cast<UInventoryComponent>(PlayerInventory)->CloseInventory(); }
-	void InventoryCycleRight() { Cast<UInventoryComponent>(PlayerInventory)->CycleRight(); }
-	void InventoryCycleLeft() { Cast<UInventoryComponent>(PlayerInventory)->CycleLeft(); }
+public:
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) UInventoryComponent* InventoryComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UStatsComponent* StatsComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
 
 	 
 #pragma endregion Components
 	
+#pragma region Interations
+public:
 
+	void InventoryOpen() { Cast<UInventoryComponent>(InventoryComponent)->OpenInventory(); }
+	void InventoryClose() { Cast<UInventoryComponent>(InventoryComponent)->CloseInventory(); }
+	void InventoryCycleRight() { Cast<UInventoryComponent>(InventoryComponent)->CycleRight(); }
+	void InventoryCycleLeft() { Cast<UInventoryComponent>(InventoryComponent)->CycleLeft(); }
+
+
+	TArray<AActor*> InteractablesQueue;
+	
+	void AddInteractableToQueue(AActor* inActor);
+	void RemoveInteractableFromQueue(AActor* inActor);
+	void Interact();
+	bool CanInteract();
+
+#pragma endregion Interations
 
 };
 
