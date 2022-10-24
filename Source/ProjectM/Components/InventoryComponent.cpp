@@ -16,7 +16,7 @@ UInventoryComponent::UInventoryComponent()
 	iOneRightSlot = 3;
 	iTwoRightSlot = 4;
 
-	Inventory.SetNum(5);
+	//Inventory.SetNum(5);
 	// ...
 }
 
@@ -39,6 +39,12 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
+
+void UInventoryComponent::AddToInventory(UItem* InItem)
+{
+	//TO DO CHeck if already exists
+	Inventory.Add(InItem);
+}
 
 void UInventoryComponent::OpenInventory()
 {

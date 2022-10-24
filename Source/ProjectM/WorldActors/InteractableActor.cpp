@@ -65,3 +65,8 @@ void AInteractableActor::OnPlayerOverlapEnd(AActor* OtherActor)
 	UE_LOG(LogTemp, Warning, TEXT("PARENT OVERLAP END"));
 
 }
+
+void AInteractableActor::OnInteract()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PARENT Interact"));
+}

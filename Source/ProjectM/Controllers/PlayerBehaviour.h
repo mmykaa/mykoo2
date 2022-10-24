@@ -121,6 +121,7 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) UInventoryComponent* InventoryComponent;
+	UInventoryComponent* GetInventoryComponent();
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UStatsComponent* StatsComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
 

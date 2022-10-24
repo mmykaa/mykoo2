@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include <Components/BoxComponent.h>
 #include "InteractableActor.h"
+#include "../Controllers/PlayerBehaviour.h"
+#include "../Items/Base/Item.h"
 #include "Herb.generated.h"
 
 UCLASS()
@@ -24,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<UObject> ItemToDrop;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) UItem* ItemToDrop;
 
 	bool bIsHarverted;
 
@@ -33,8 +35,10 @@ public:
 	void Harvest();
 	FTimerHandle HarvestTimer;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float fTimeBeetweenRestock;
+	AActor* PlayerActor;
 	void Restock();
 	
 	virtual void OnPlayerOverlapBegin(AActor* OtherActor) override;
 	virtual void OnPlayerOverlapEnd(AActor* OtherActor) override;
+	virtual void OnInteract() override;
 };

@@ -31,5 +31,6 @@ public:
 
 	virtual void OnPlayerOverlapBegin(AActor* OtherActor);
 	virtual void OnPlayerOverlapEnd(AActor* OtherActor);
+	virtual void OnInteract();
 
 };

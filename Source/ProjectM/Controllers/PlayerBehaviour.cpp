@@ -13,6 +13,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "../Components/InventoryComponent.h"
 #include "ProjectM/Components/HealthComponent.h"
+#include "../WorldActors/InteractableActor.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,6 +143,11 @@ void APlayerBehaviour::SetUnique()
 	Cast<AUniquesHelper>(Uniques)->SetPlayerUnique(this);
 }
 
+UInventoryComponent* APlayerBehaviour::GetInventoryComponent()
+{
+	return InventoryComponent;
+}
+
 void APlayerBehaviour::AddInteractableToQueue(AActor* inActor)
 {
 	//Add Actor In the last entry of the queue
@@ -152,7 +158,7 @@ void APlayerBehaviour::RemoveInteractableFromQueue(AActor* inActor)
 {
 	//Find Actor In Queue
 	//TArray::Find(inActor)
-
+	InteractablesQueue.RemoveAt(InteractablesQueue.Find(inActor));
 	//Remove Actor from Queue
 }
 
@@ -161,7 +167,9 @@ void APlayerBehaviour::Interact()
 	if (CanInteract())
 	{
 		//Get the Last Entry on the Queue
-		//Interact with it
+
+		Cast<AInteractableActor>(InteractablesQueue[InteractablesQueue.Num() - 1])->OnInteract();
+		
 	}
 }
 

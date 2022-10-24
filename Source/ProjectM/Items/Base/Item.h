@@ -23,8 +23,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	UTexture2D* ItemIcon;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)	TSubclassOf<AActor> ItemActor;
 
-
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) bool bCanItemStack;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) int iItemAmount;
 
