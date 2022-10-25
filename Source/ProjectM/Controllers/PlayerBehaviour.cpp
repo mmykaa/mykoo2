@@ -167,9 +167,7 @@ void APlayerBehaviour::Interact()
 	if (CanInteract())
 	{
 		//Get the Last Entry on the Queue
-
 		Cast<AInteractableActor>(InteractablesQueue[InteractablesQueue.Num() - 1])->OnInteract();
-		
 	}
 }
 

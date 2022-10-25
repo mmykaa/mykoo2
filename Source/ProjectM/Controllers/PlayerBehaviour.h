@@ -124,6 +124,7 @@ public:
 	UInventoryComponent* GetInventoryComponent();
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UStatsComponent* StatsComponent;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere) UHealthComponent* HealthSystem;
+	UFUNCTION(BlueprintImplementableEvent)  void AddNewItemToInventory(UItem* NewItem);
 
 	 
 #pragma endregion Components
@@ -131,6 +132,7 @@ public:
 #pragma region Interations
 public:
 
+	UFUNCTION(BlueprintImplementableEvent) void RefreshInventoryWidget();
 	void InventoryOpen() { Cast<UInventoryComponent>(InventoryComponent)->OpenInventory(); }
 	void InventoryClose() { Cast<UInventoryComponent>(InventoryComponent)->CloseInventory(); }
 	void InventoryCycleRight() { Cast<UInventoryComponent>(InventoryComponent)->CycleRight(); }

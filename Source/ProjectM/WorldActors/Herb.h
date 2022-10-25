@@ -26,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) UItem* ItemToDrop;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) TSubclassOf<UItem> ItemToDrop;
 
 	bool bIsHarverted;
 

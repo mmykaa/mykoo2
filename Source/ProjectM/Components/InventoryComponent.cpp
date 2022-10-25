@@ -2,6 +2,7 @@
 
 
 #include "InventoryComponent.h"
+#include "../Controllers/PlayerBehaviour.h"
 
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
@@ -15,9 +16,6 @@ UInventoryComponent::UInventoryComponent()
 	iCurrentSlotSelected = 2;
 	iOneRightSlot = 3;
 	iTwoRightSlot = 4;
-
-	//Inventory.SetNum(5);
-	// ...
 }
 
 
@@ -26,37 +24,103 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	for (int i = 0; i < DefaultInventoryItems.Num(); ++i)
+	{
+		UItem* m_TempItem =  NewObject<UItem>(this, DefaultInventoryItems[i]);
+
+		if (!m_TempItem) return;
+		
+		Inventory.Add(m_TempItem);
+		UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), * m_TempItem->GetName());
+	}
+
+}
+
+void UInventoryComponent::AddToInventory(TSubclassOf<UItem> inItem)
+{
+	//TO DO CHeck if already exists
+
+	UE_LOG(LogTemp, Warning, TEXT("ADDINT ITEM: %s"), *inItem->GetName());
+
+	if (!inItem) return;
+	
+
+	if (!CheckIfItemExists(inItem))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), *inItem->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("DONT EXIST"));
+
+		UItem* m_TempItem = NewObject<UItem>(this, inItem);
+
+		if (!m_TempItem) return;
+
+		
+
+		Inventory.Add(m_TempItem);
+
+		if (Cast<APlayerBehaviour>(GetOwner()))
+		{
+			Cast<APlayerBehaviour>(GetOwner())->RefreshInventoryWidget();
+		}
+	}
+	else if(CheckIfItemExists(inItem))
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), *inItem->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("EXIST"));
+
+		UItem* m_ItemToStack = Inventory[iItemIndex];
+
+		//Check if the item can Stack
+		if (!Cast<UItem>(m_ItemToStack)->GetCanStack())
+		{
+			return;
+		}
+		else
+		{
+			//Get the amount to stack over the existing item
+			int m_ItemAmountToStack = Cast<UItem>(inItem)->GetAmountItemAmount();
+			Inventory[iItemIndex]->AddAmount(m_ItemAmountToStack);
+
+			if (Cast<APlayerBehaviour>(GetOwner()))
+			{
+				Cast<APlayerBehaviour>(GetOwner())->RefreshInventoryWidget();
+			}
+		}
+	}
 	
 }
 
-
-// Called every frame
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+bool UInventoryComponent::CheckIfItemExists(TSubclassOf<UItem> inItem)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	bool m_bItemExists = false;
+	
+	for (int i = 0; i < Inventory.Num(); ++i)
+	{
+		if (Inventory[i]->GetClass() == inItem)
+		{
+			iItemIndex = i;
+			m_bItemExists = true;
+			break;
+		}
+	}
 
-	// ...
+	return m_bItemExists;
 }
 
-
-void UInventoryComponent::AddToInventory(UItem* InItem)
+void UInventoryComponent::RemoteFromInventory(TSubclassOf<UItem> inItem)
 {
-	//TO DO CHeck if already exists
-	Inventory.Add(InItem);
+
 }
 
 void UInventoryComponent::OpenInventory()
 {
  	bIsInteractingWithInventory = true;
-	UE_LOG(LogTemp, Warning, TEXT("OPEN"));
 }
 
 void UInventoryComponent::CloseInventory()
 {
 	bIsInteractingWithInventory = false;
-	UE_LOG(LogTemp, Warning, TEXT("CLOSE"));
-
 }
 
 void UInventoryComponent::CycleRight()
@@ -64,7 +128,7 @@ void UInventoryComponent::CycleRight()
 
 	if (bIsInteractingWithInventory)
 	{
-		if (Inventory.Num() >= 5)
+		if (DefaultInventoryItems.Num() >= 5)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("RIGHT"));
 
@@ -93,7 +157,7 @@ void UInventoryComponent::CycleRight()
 
 void UInventoryComponent::HandlePositiveOverflow(int& SlotToHandle)
 {
-	if (SlotToHandle > Inventory.Num()-1)
+	if (SlotToHandle > DefaultInventoryItems.Num()-1)
 	{
 		SlotToHandle = 0;
 	}
@@ -104,7 +168,7 @@ void UInventoryComponent::CycleLeft()
 {
 	if (bIsInteractingWithInventory)
 	{
-		if (Inventory.Num() >= 5)
+		if (DefaultInventoryItems.Num() >= 5)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("LEFT"));
 
@@ -136,7 +200,7 @@ void UInventoryComponent::HandleNegativeOverflow(int& SlotToHandle)
 {
 	if (SlotToHandle < 0)
 	{
-		SlotToHandle = Inventory.Num() -1;
+		SlotToHandle = DefaultInventoryItems.Num() -1;
 	}
 }
 

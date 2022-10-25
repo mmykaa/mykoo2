@@ -7,8 +7,9 @@
 #include "ProjectM/Items/Base/Item.h"
 #include "InventoryComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
-UCLASS( ClassGroup=(Custom) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTM_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -22,15 +23,18 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY(BlueprintAssignable) FOnInventoryUpdated OnInventoryUpdated;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)	TArray<TSubclassOf<UItem>> DefaultInventoryItems;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) TArray<UItem*> Inventory;
+
+	UFUNCTION() void AddToInventory(TSubclassOf<UItem> inItem);
+	UFUNCTION() void RemoteFromInventory(TSubclassOf<UItem> inItem);
 
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)	TArray<UItem*> Inventory;
-
-	void AddToInventory(UItem* InItem);
-	
-	
+	bool CheckIfItemExists(TSubclassOf<UItem> inItem);
+	int iItemIndex;
+	TArray<UItem*> GetInventoryCopy() { return Inventory; }
 	bool bIsInteractingWithInventory;
 
 	void OpenInventory();
@@ -45,7 +49,6 @@ public:
 	void HandlePositiveOverflow(int& SlotToHandle);
 
 	void HandleNegativeOverflow(int& SlotToHandle);
-
 
 	void CycleLeft();
 	void CycleRight();

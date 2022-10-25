@@ -4,6 +4,7 @@
 #include "../WorldActors/Herb.h"
 #include "../Controllers/PlayerBehaviour.h"
 #include "../Components/InventoryComponent.h"
+#include "../Items/Base/Item.h"
 
 
 // Sets default values
@@ -44,7 +45,6 @@ void AHerb::OnPlayerOverlapBegin(AActor* OtherActor)
 	PlayerActor = OtherActor;
 	APlayerBehaviour* m_Player = Cast<APlayerBehaviour>(OtherActor);
 	m_Player->AddInteractableToQueue(this);
-	UE_LOG(LogTemp, Warning, TEXT("CHILD BEGIN"));
 }
 
 
@@ -53,7 +53,6 @@ void AHerb::OnPlayerOverlapEnd(AActor* OtherActor)
 	PlayerActor = OtherActor;
 	APlayerBehaviour* m_Player = Cast<APlayerBehaviour>(PlayerActor);
 	m_Player->RemoveInteractableFromQueue(this);
-	UE_LOG(LogTemp, Warning, TEXT("CHILD END"));
 }
 
 		
@@ -64,8 +63,6 @@ void AHerb::OnInteract()
 	if (PlayerIventory != nullptr)
 	{
 		PlayerIventory->AddToInventory(ItemToDrop);
-		UE_LOG(LogTemp, Warning, TEXT("Herb Interact"));
-
 	}
 	
 }
