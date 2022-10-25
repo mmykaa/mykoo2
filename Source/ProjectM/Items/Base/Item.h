@@ -31,7 +31,7 @@ public:
 
 	bool GetCanStack() { return bCanItemStack; }
 	int GetAmountItemAmount() { return iItemAmount; }
-	void AddAmount(int &inAmount) { iItemAmount += inAmount; }
+	void AddAmount(int inAmount);
 
 	UFUNCTION() virtual void Item_Use();
 

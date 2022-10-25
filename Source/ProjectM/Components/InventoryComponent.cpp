@@ -40,10 +40,10 @@ void UInventoryComponent::AddToInventory(TSubclassOf<UItem> inItem)
 {
 	//TO DO CHeck if already exists
 
-	UE_LOG(LogTemp, Warning, TEXT("ADDINT ITEM: %s"), *inItem->GetName());
 
 	if (!inItem) return;
-	
+	UE_LOG(LogTemp, Warning, TEXT("ADDINT ITEM: %s"), *inItem->GetName());
+
 
 	if (!CheckIfItemExists(inItem))
 	{
@@ -71,6 +71,8 @@ void UInventoryComponent::AddToInventory(TSubclassOf<UItem> inItem)
 
 		UItem* m_ItemToStack = Inventory[iItemIndex];
 
+		UItem* m_TempItem = NewObject<UItem>(this, inItem);
+
 		//Check if the item can Stack
 		if (!Cast<UItem>(m_ItemToStack)->GetCanStack())
 		{
@@ -79,7 +81,7 @@ void UInventoryComponent::AddToInventory(TSubclassOf<UItem> inItem)
 		else
 		{
 			//Get the amount to stack over the existing item
-			int m_ItemAmountToStack = Cast<UItem>(inItem)->GetAmountItemAmount();
+			int m_ItemAmountToStack = Cast<UItem>(m_TempItem)->GetAmountItemAmount();
 			Inventory[iItemIndex]->AddAmount(m_ItemAmountToStack);
 
 			if (Cast<APlayerBehaviour>(GetOwner()))

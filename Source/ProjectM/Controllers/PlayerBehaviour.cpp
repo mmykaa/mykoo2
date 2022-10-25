@@ -148,43 +148,9 @@ UInventoryComponent* APlayerBehaviour::GetInventoryComponent()
 	return InventoryComponent;
 }
 
-void APlayerBehaviour::AddInteractableToQueue(AActor* inActor)
-{
-	//Add Actor In the last entry of the queue
-	InteractablesQueue.Add(inActor);
-}
 
-void APlayerBehaviour::RemoveInteractableFromQueue(AActor* inActor)
-{
-	//Find Actor In Queue
-	//TArray::Find(inActor)
-	InteractablesQueue.RemoveAt(InteractablesQueue.Find(inActor));
-	//Remove Actor from Queue
-}
+#pragma region Locomotion
 
-void APlayerBehaviour::Interact()
-{
-	if (CanInteract())
-	{
-		//Get the Last Entry on the Queue
-		Cast<AInteractableActor>(InteractablesQueue[InteractablesQueue.Num() - 1])->OnInteract();
-	}
-}
-
-bool APlayerBehaviour::CanInteract()
-{
-	bool m_bCanInteract;
-	if (InteractablesQueue.Num() > 0)
-	{
-		m_bCanInteract = true;
-	}
-	else if (InteractablesQueue.Num() <= 0)
-	{
-		m_bCanInteract = false;
-	}
-
-	return m_bCanInteract;
-}
 
 void APlayerBehaviour::TurnAtRate(float Rate)
 {
@@ -206,8 +172,8 @@ void APlayerBehaviour::MoveForward(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 		FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	}
-	
-	if(Value == 0.0f)
+
+	if (Value == 0.0f)
 	{
 		bMovingForward = false;
 		bMovingBack = false;
@@ -232,11 +198,11 @@ void APlayerBehaviour::MoveRight(float Value)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		
+
 		FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	}
 
-	if(Value == 0.0f)
+	if (Value == 0.0f)
 	{
 		bMovingRight = false;
 		bMovingLeft = false;
@@ -258,10 +224,10 @@ void APlayerBehaviour::MoveRight(float Value)
 float APlayerBehaviour::GetRelativeDirection()
 {
 	fMoveDirection = GetControlRotation().Yaw;
-	
+
 	float fMoveFBSum;
 	float fMoveRLSum;
-	
+
 	float fCovFoward = UKismetMathLibrary::Conv_BoolToFloat(bMovingForward);
 	float fCovBack = UKismetMathLibrary::Conv_BoolToFloat(bMovingBack);
 	float fCovRight = UKismetMathLibrary::Conv_BoolToFloat(bMovingRight);
@@ -271,8 +237,8 @@ float APlayerBehaviour::GetRelativeDirection()
 	fMoveRLSum = fCovRight + (fCovLeft * -1);
 
 	//If Player moves FWD or BWD multiply RGT/LFT by 0.5
-	
-	if (fMoveRLSum != 0) 
+
+	if (fMoveRLSum != 0)
 	{
 		moveRightDegrees = 1.0f;
 
@@ -290,35 +256,35 @@ float APlayerBehaviour::GetRelativeDirection()
 	{
 		moveRightDegrees = 1.0f;
 	}
-	
+
 	if (fMoveFBSum < 0) // == -1
 	{
 		moveRightDegrees *= -1;
-		
+
 		//Player want bwd 180
 		fMoveDirection += 180;
 	}
-	
+
 	//Player want right 90 degrees multiplier
 	if (fMoveRLSum > 0) // == 1
 	{
 		fMoveDirection = (fMoveDirection + (moveRightDegrees * 90));
 
 	}
-	
+
 	//Player want left 90 degrees multiplier
 	if (fMoveRLSum < 0) // == -1
 	{
-		fMoveDirection =  (fMoveDirection + (moveRightDegrees * -90)) ;
+		fMoveDirection = (fMoveDirection + (moveRightDegrees * -90));
 	}
 
 	FRotator rDirection = FRotator(0.0f, fMoveDirection, 0.0f);
 
 	FRotator NormalizedDeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(rDirection, GetActorRotation());
 
-	
+
 	fMoveDirection = NormalizedDeltaRot.Yaw;
-	
+
 	return fMoveDirection;
 }
 
@@ -327,7 +293,7 @@ void APlayerBehaviour::StartRunning()
 	bIsSprinting = true;
 	bIsRunning = false;
 	bIsWalking = false;
-	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,3,GetWorld()->GetDeltaSeconds(),20.0f);
+	fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 3, GetWorld()->GetDeltaSeconds(), 20.0f);
 }
 
 void APlayerBehaviour::StopRunning()
@@ -335,7 +301,7 @@ void APlayerBehaviour::StopRunning()
 	bIsSprinting = false;
 	bIsRunning = true;
 	bIsWalking = false;
-	fMoveSpeed = FMath::FInterpTo(fMoveSpeed,2,GetWorld()->GetDeltaSeconds(),1.0f);
+	fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 2, GetWorld()->GetDeltaSeconds(), 1.0f);
 }
 
 void APlayerBehaviour::StartJump()
@@ -349,7 +315,7 @@ void APlayerBehaviour::StartJump()
 
 void APlayerBehaviour::ToggleWalk()
 {
-	if(!bIsWalking)
+	if (!bIsWalking)
 	{
 		bIsWalking = true;
 		bIsRunning = false;
@@ -365,17 +331,17 @@ void APlayerBehaviour::SetMoveSpeed()
 {
 	if (!bIsWalking && !bIsRunning && bIsSprinting)
 	{
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,3,GetWorld()->GetDeltaSeconds(),20.0f);
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 3, GetWorld()->GetDeltaSeconds(), 20.0f);
 		GetCharacterMovement()->JumpZVelocity = 350.f;
 	}
 	if (!bIsWalking && bIsRunning && !bIsSprinting)
 	{
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,2,GetWorld()->GetDeltaSeconds(),20.0f);
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 2, GetWorld()->GetDeltaSeconds(), 20.0f);
 		GetCharacterMovement()->JumpZVelocity = 350.f;
 	}
 	if (bIsWalking && !bIsRunning && !bIsSprinting)
 	{
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,1,GetWorld()->GetDeltaSeconds(),20.0f);
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 1, GetWorld()->GetDeltaSeconds(), 20.0f);
 		GetCharacterMovement()->JumpZVelocity = 400.f;
 	}
 }
@@ -398,7 +364,7 @@ float APlayerBehaviour::MathToward(float inFloatOne, float inFloatTwo, float Val
 		bWasLower = false;
 		NewValue = inFloatOne - Value;
 
-		if (inFloatTwo > Value )
+		if (inFloatTwo > Value)
 		{
 			NewValue = inFloatOne - Value;
 		}
@@ -407,8 +373,8 @@ float APlayerBehaviour::MathToward(float inFloatOne, float inFloatTwo, float Val
 	if (inFloatOne < inFloatTwo)
 	{
 		bWasLower = true;
-		NewValue = 	inFloatOne + Value;
-		
+		NewValue = inFloatOne + Value;
+
 		if (NewValue > inFloatTwo)
 		{
 			NewValue = inFloatTwo;
@@ -418,7 +384,7 @@ float APlayerBehaviour::MathToward(float inFloatOne, float inFloatTwo, float Val
 	{
 		NewValue = inFloatTwo;
 	}
-	
+
 
 	return NewValue;
 }
@@ -432,10 +398,10 @@ void APlayerBehaviour::UpdateMoveState()
 
 	}
 
-	if (!bMovingForward && !bMovingBack  && !bMovingRight  && !bMovingLeft)
+	if (!bMovingForward && !bMovingBack && !bMovingRight && !bMovingLeft)
 	{
 		bIsMoving = false;
-		fMoveSpeed = FMath::FInterpTo(fMoveSpeed,0.1f,GetWorld()->GetDeltaSeconds(),2.0f);
+		fMoveSpeed = FMath::FInterpTo(fMoveSpeed, 0.1f, GetWorld()->GetDeltaSeconds(), 2.0f);
 		bCanJump = false;
 
 	}
@@ -449,6 +415,45 @@ void APlayerBehaviour::UpdateMoveState()
 	{
 		fInputDirection = GetRelativeDirection();
 	}
+}
 
-	
+#pragma endregion Locomotion
+
+void APlayerBehaviour::AddInteractableToQueue(AActor* inActor)
+{
+	//Add Actor In the last entry of the queue
+	InteractablesQueue.Add(inActor);
+}
+
+void APlayerBehaviour::RemoveInteractableFromQueue(AActor* inActor)
+{
+	//Find Actor In Queue
+	//TArray::Find(inActor)
+	InteractablesQueue.RemoveAt(InteractablesQueue.Find(inActor));
+	//Remove Actor from Queue
+}
+
+void APlayerBehaviour::Interact()
+{
+	if (CanInteract())
+	{
+		//Get the Last Entry on the Queue
+		Cast<AInteractableActor>(InteractablesQueue[InteractablesQueue.Num() - 1])->OnInteract();
+	}
+}
+
+
+bool APlayerBehaviour::CanInteract()
+{
+	bool m_bCanInteract;
+	if (InteractablesQueue.Num() > 0)
+	{
+		m_bCanInteract = true;
+	}
+	else if (InteractablesQueue.Num() <= 0)
+	{
+		m_bCanInteract = false;
+	}
+
+	return m_bCanInteract;
 }
