@@ -30,7 +30,7 @@ void UInventoryComponent::BeginPlay()
 
 		if (!m_TempItem) return;
 		
-		Inventory.Add(m_TempItem);
+		DefaultInventory.Add(m_TempItem);
 		UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), * m_TempItem->GetName());
 	}
 

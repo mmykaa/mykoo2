@@ -26,6 +26,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable) FOnInventoryUpdated OnInventoryUpdated;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)	TArray<TSubclassOf<UItem>> DefaultInventoryItems;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) TArray<UItem*> DefaultInventory;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere) TArray<UItem*> Inventory;
 
 	UFUNCTION() void AddToInventory(TSubclassOf<UItem> inItem);
@@ -34,7 +35,7 @@ public:
 
 	bool CheckIfItemExists(TSubclassOf<UItem> inItem);
 	int iItemIndex;
-	TArray<UItem*> GetInventoryCopy() { return Inventory; }
+	TArray<UItem*> GetInventoryCopy() { return DefaultInventory; }
 	bool bIsInteractingWithInventory;
 
 	void OpenInventory();
